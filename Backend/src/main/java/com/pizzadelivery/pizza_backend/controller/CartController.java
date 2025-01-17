@@ -70,6 +70,6 @@ public class CartController {
     @DeleteMapping("/deletecart/{id}")
     public ResponseEntity<Void> removeFromCart(@PathVariable String id) {
         cartService.removeItemFromCart(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }

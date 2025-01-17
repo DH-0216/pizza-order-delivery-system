@@ -16,7 +16,6 @@ const Navbars = ({ setShowLogin, setFormType, isLoggedIn, setIsLoggedIn }) => {
   const location = useLocation();
   const isNotHomePage = location.pathname !== "/";
 
-  
   useEffect(() => {
     const changeValueOnScroll = () => {
       const scrollValue = document?.documentElement?.scrollTop || 0;
@@ -52,9 +51,9 @@ const Navbars = ({ setShowLogin, setFormType, isLoggedIn, setIsLoggedIn }) => {
     localStorage.clear(); // Clears all localStorage data related to the user
     sessionStorage.clear(); // Optional: Clears sessionStorage if used
 
-     localStorage.removeItem("userName");
-     setCartItem([]); // Clear cart state
-     console.log("User logged out and cart cleared");
+    localStorage.removeItem("userName");
+    setCartItem([]); // Clear cart state
+    console.log("User logged out and cart cleared");
 
     // Update the application state
     setUserName("");
@@ -131,10 +130,12 @@ const Navbars = ({ setShowLogin, setFormType, isLoggedIn, setIsLoggedIn }) => {
                       </li>
                     </ul>
                     <ul className="nav-profile-dropdown">
-                      <li>
-                        <i class="bi bi-person-vcard"></i>
-                        <span>Profile</span>
-                      </li>
+                      <Link to={"/profile"}>
+                        <li>
+                          <i class="bi bi-person-vcard"></i>
+                          <span>Profile</span>
+                        </li>
+                      </Link>
                       <li onClick={handleLogout}>
                         <i class="bi bi-box-arrow-right"></i>
                         <span>Log Out</span>

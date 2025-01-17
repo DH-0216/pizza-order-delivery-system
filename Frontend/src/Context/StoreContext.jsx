@@ -5,12 +5,12 @@ import axios from "axios";
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
-  const [cartItems, setCartItem] = useState([]);
+  const [cartItems, setCartItem] = useState({});
   const [foodList, setFoodList] = useState([]);
   const userName = localStorage.getItem("userName");
   const url = "http://localhost:8080";
 
-  //Fetch Cart Item
+  // Fetch Cart Item
   const fetchCartItems = async () => {
     try {
       const response = await fetch(`${url}/api/cart/getcart/${userName}`);
@@ -25,14 +25,22 @@ const StoreContextProvider = (props) => {
       const formattedCartData = {};
       cartData.forEach((item) => {
         const compositeKey = `${item.itemId}|${item.size}`;
-        formattedCartData[compositeKey] = item.quantity;
+        formattedCartData[compositeKey] = {
+          quantity: item.quantity,
+          cartId: item.id, // Include cartId
+        };
       });
 
-      setCartItem(formattedCartData);
-      console.log("Fetched and formatted cart data:", formattedCartData);
+      // Only update state if the data has changed
+      if (JSON.stringify(cartItems) !== JSON.stringify(formattedCartData)) {
+        setCartItem(formattedCartData);
+        console.log("Fetched and formatted cart data:", formattedCartData);
+      } else {
+        console.log("Cart items are already up-to-date.");
+      }
     } catch (error) {
       console.error("Error fetching cart items:", error);
-      setCartItem([]); // Clear cart items on error
+      setCartItem({}); // Clear cart items on error
     }
   };
 
@@ -42,31 +50,112 @@ const StoreContextProvider = (props) => {
       return;
     }
     fetchCartItems();
-  }, [userName]);
+  }, [userName]); // Depend only on userName
 
   useEffect(() => {
-    if (!cartItems.length || !foodList.length) return;
+    if (!cartItems || !foodList) return;
 
     const cartDetails = Object.entries(cartItems)
-      .map(([key, count]) => {
+      .map(([key, { quantity, cartId }]) => {
         const [itemId, size] = key.split("|");
         const item = foodList.find((food) => food.id === itemId);
 
         if (!item) {
-          console.warn(`Food item with ID ${itemId} not found in foodList.`);
-          return null; // Handle missing items gracefully
+          console.warn(`Item with ID ${itemId} not found in foodList`);
+          return null;
         }
 
         return {
           name: item.name,
           size,
-          quantity: count,
+          quantity,
+          cartId,
         };
       })
       .filter(Boolean); // Filter out null values
 
-    console.log("Mapped Cart Items:", cartDetails);
+    console.log("Mapped Cart Items with Cart ID:", cartDetails);
   }, [cartItems, foodList]);
+
+  const updateCartQuantity = async (itemId, size) => {
+    const compositeKey = `${itemId}|${size}`;
+
+    if (cartItems[compositeKey]) {
+      const item = foodList.find((food) => food.id === itemId);
+      const quantity = cartItems[compositeKey].quantity;
+      const sizePrice = item.price[size] || 0;
+
+      if (quantity > 1) {
+        const updatedQuantity = quantity - 1;
+        const updatedCart = { ...cartItems };
+        updatedCart[compositeKey].quantity = updatedQuantity;
+        setCartItem(updatedCart);
+
+        const updatedCartItem = {
+          userName,
+          itemId,
+          itemName: item.name,
+          quantity: updatedQuantity,
+          size,
+          price: sizePrice,
+        };
+
+        try {
+          const response = await axios.put(
+            `${url}/api/cart/updatecart/${userName}`,
+            updatedCartItem
+          );
+
+          if (response.status === 200) {
+            toast.success("Item quantity updated in cart!");
+            fetchCartItems();
+          } else {
+            toast.error("Failed to update item in cart.");
+          }
+        } catch (error) {
+          console.error("Error updating item in cart:", error);
+          toast.error("Failed to update item in cart.");
+        }
+      }
+    } else {
+      toast.error("Item not found in cart.");
+    }
+  };
+
+  const removeFromCart = async (itemId, size) => {
+    const compositeKey = `${itemId}|${size}`;
+    const currentCartItems = { ...cartItems }; // Clone the state to avoid timing issues
+
+    if (currentCartItems[compositeKey]) {
+      const cartId = currentCartItems[compositeKey].cartId;
+
+      console.log("cartItems before deletion:", currentCartItems);
+      console.log("Composite Key:", compositeKey);
+      console.log("Cart ID for delete:", cartId);
+
+      try {
+        // Attempt to delete the item from the backend first
+        const response = await axios.delete(
+          `${url}/api/cart/deletecart/${cartId}`
+        );
+
+        if (response.status === 200) {
+          // Remove item from the cloned object
+          delete currentCartItems[compositeKey];
+          setCartItem(currentCartItems); // Update state with the modified object
+          toast.success("Item removed from cart!");
+        } else {
+          toast.error("Failed to delete cart item.");
+        }
+      } catch (error) {
+        console.error("Error removing item from cart:", error);
+        toast.error("Failed to remove item from cart.");
+      }
+    } else {
+      console.log("Item not found in cart for removal:", compositeKey);
+      toast.error("Item not found in cart.");
+    }
+  };
 
   // Fetch food list from the API
   const fetchFoodList = async () => {
@@ -92,25 +181,28 @@ const StoreContextProvider = (props) => {
     loadData();
   }, []);
 
-  
   // Calculate the total price of the items in the cart
   const getTotalPrice = () => {
     if (!cartItems || !foodList) return 0; // Ensure valid data
-    return Object.entries(cartItems).reduce((total, [compositeKey, count]) => {
-      const [itemId, size] = compositeKey.split("|");
-      const item = foodList.find((food) => food.id === itemId);
 
-      if (item && item.price[size]) {
-        const sizePrice = item.price[size]; // Fetch the price for the specific size
-        total += sizePrice * count; // Add the item's total price to the total
-      } else {
-        console.warn(
-          `Item with ID: ${itemId} or size: ${size} not found in foodList or missing price.`
-        );
-      }
+    return Object.entries(cartItems).reduce(
+      (total, [compositeKey, { quantity }]) => {
+        const [itemId, size] = compositeKey.split("|");
+        const item = foodList.find((food) => food.id === itemId);
 
-      return total;
-    }, 0);
+        if (item && item.price && item.price[size]) {
+          const sizePrice = item.price[size]; // Fetch the price for the specific size
+          total += sizePrice * quantity; // Add the item's total price to the total
+        } else {
+          console.warn(
+            `Item with ID: ${itemId} or size: ${size} not found or price missing.`
+          );
+        }
+
+        return total;
+      },
+      0
+    );
   };
 
   // Calculate the final total price including delivery fee
@@ -122,71 +214,19 @@ const StoreContextProvider = (props) => {
 
   // Get the total number of items in the cart
   const getTotalItems = () => {
-    if (!cartItems) return 0; // Ensure cartItems is valid
-    return Object.values(cartItems)
-      .map(Number) // Convert each value to a number
-      .reduce((total, count) => total + count, 0); // Sum all quantities
+    if (!cartItems || Object.keys(cartItems).length === 0) return 0; // Ensure cartItems is valid and not empty
+
+    return Object.values(cartItems).reduce((total, item) => {
+      // Convert quantity to an integer (parse as integer), default to 0 if invalid
+      const quantity = parseInt(item.quantity, 10) || 0;
+      return total + quantity;
+    }, 0); // Sum all quantities
   };
-
-  // Remove item from the cart
-  const removeFromCart = async (itemId, size) => {
-    const compositeKey = `${itemId}|${size}`;
-
-    if (cartItems[compositeKey]) {
-      const item = foodList.find((food) => food.id === itemId);
-      const quantity = cartItems[compositeKey];
-      const sizePrice = item.price[size] || 0;
-
-      // Decrease the quantity for the item (or remove it completely if quantity is 1)
-      const updatedQuantity = quantity - 1;
-
-      // Prepare the updated cart data for the API request
-      const updatedCartItem = {
-        userName,
-        itemId,
-        itemName: item.name,
-        quantity: updatedQuantity,
-        size: size,
-        price: sizePrice,
-      };
-
-      try {
-        // Send a request to update the cart in the backend
-        const response = await axios.put(
-          `${url}/api/cart/updatecart/${userName}`,
-          updatedCartItem
-        );
-
-        if (response.status === 200) {
-          // If the request was successful, update the local cart state
-          const updatedCart = { ...cartItems };
-
-          if (updatedQuantity <= 0) {
-            delete updatedCart[compositeKey]; // Remove the item if quantity is 0
-          } else {
-            updatedCart[compositeKey] = updatedQuantity; // Update the quantity
-          }
-
-          setCartItem(updatedCart); // Update the local state
-          toast.success("Item removed from cart!");
-        } else {
-          toast.error("Failed to remove item from cart.");
-        }
-      } catch (error) {
-        console.error("Error removing item from cart:", error);
-        toast.error("Failed to remove item from cart.");
-      }
-    } else {
-      toast.error("Item not found in cart.");
-    }
-  };
-
-
-  // Log cart items when they change
 
   const contextValue = {
     foodList,
     cartItems,
+    updateCartQuantity,
     removeFromCart,
     getTotalItems,
     getTotalPrice,

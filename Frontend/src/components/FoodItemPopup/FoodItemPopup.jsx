@@ -21,37 +21,65 @@ const FoodItemPopup = ({
   const token = localStorage.getItem("token");
   const userName = localStorage.getItem("userName");
 
-  const addToCart = async () => {
-    if (localCount > 0 && selectedSize) {
-      try {
-        const cartItem = {
-          userName,
-          itemId: id,
-          itemName: name,
-          quantity: localCount,
-          size: selectedSize,
-          price: selectedPrice,
-        };
+ const addToCart = async () => {
+   if (localCount > 0 && selectedSize) {
+     try {
+       const cartItem = {
+         userName,
+         itemId: id,
+         itemName: name,
+         quantity: localCount,
+         size: selectedSize,
+         price: selectedPrice,
+       };
 
-        // Send the cart item to the backend
-        await axios.post("http://localhost:8080/api/cart/addtocart", cartItem);
+       // Send the cart item to the backend
+       const response = await axios.post(
+         "http://localhost:8080/api/cart/addtocart",
+         cartItem
+       );
 
-        // Update cartItems state/context dynamically
-        setCartItem((prevCartItems) => {
-          const compositeKey = `${id}|${selectedSize}`;
-          return {
-            ...prevCartItems,
-            [compositeKey]: (prevCartItems[compositeKey] || 0) + localCount,
-          };
-        });
+       if (response.status === 200) {
+         // If the response is successful, update the cartItems state
+         setCartItem((prevCartItems) => {
+           const compositeKey = `${id}|${selectedSize}`;
+           const existingItem = prevCartItems[compositeKey];
 
-        toast.success(`${name} added to cart!`);
-      } catch (error) {
-        console.error("Error adding item to cart:", error);
-        toast.error("Failed to add item to cart.");
-      }
-    }
-  };
+           // If the item already exists in the cart, increase the quantity
+           if (existingItem) {
+             return {
+               ...prevCartItems,
+               [compositeKey]: {
+                 quantity: existingItem.quantity + localCount,
+                 cartId: existingItem.cartId, // Preserve the cartId
+               },
+             };
+           } else {
+             // If the item doesn't exist, add it to the cart
+             return {
+               ...prevCartItems,
+               [compositeKey]: {
+                 quantity: localCount,
+                 cartId: response.data.cartId, // Assuming response contains cartId
+               },
+             };
+           }
+         });
+
+         toast.success(`${name} added to cart!`);
+       } else {
+         toast.error("Failed to add item to cart.");
+       }
+     } catch (error) {
+       console.error("Error adding item to cart:", error);
+       toast.error("Failed to add item to cart.");
+     }
+   } else {
+     toast.error(
+       "Please select a size and ensure the quantity is greater than 0."
+     );
+   }
+ };
 
 
   const handleBuy = () => {
