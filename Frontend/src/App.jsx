@@ -10,7 +10,7 @@ import { ToastContainer, cssTransition } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "animate.css";
 
-const App = () => {
+function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [formType, setFormType] = useState("Login");
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -43,16 +43,14 @@ const App = () => {
           setShowLogin={setShowLogin}
           setFormType={setFormType}
           formType={formType}
-          setIsLoggedIn={setIsLoggedIn}
-        />
+          setIsLoggedIn={setIsLoggedIn} />
       )}
       <div className="app">
         <Navbar
           setShowLogin={setShowLogin}
           setFormType={setFormType}
           setIsLoggedIn={setIsLoggedIn}
-          isLoggedIn={isLoggedIn}
-        />
+          isLoggedIn={isLoggedIn} />
         <ScrollToHash />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -68,10 +66,9 @@ const App = () => {
           width: "300px",
           height: "50px",
           fontSize: "16px",
-        }}
-      />
+        }} />
     </>
   );
-};
+}
 
 export default App;

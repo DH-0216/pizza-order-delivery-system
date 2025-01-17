@@ -9,28 +9,30 @@ import {
     BiHelpCirle, 
 } from 'react-icons/bi';
 
+import './sidebar.css';
+
 const Sidebar = () => {
   return <div className='menu'>
     <div className="logo">
-        <BiBookAlt />
-        <h2>EduFlex</h2>
+        <BiBookAlt className="logo-icon" />
+        <h2>RedOven</h2>
     </div>
 
     <div className="menu-list">
         <a href="#" className="item">
-            <BiHome />
+            <BiHome className="icon" />
             Assignment
         </a>
         <a href="#" className="item">
-            <BiSolisReport />
+            <BiSolisReport className="icon" />
             Report
         </a>
         <a href="#" className="item">
-            <BiMessage />
+            <BiMessage className="icon" />
             Message
         </a>
         <a href="#" className="item">
-            <BiHelpCirle />
+            <BiHelpCirle className="icon" />
             Help
         </a>
     </div>
