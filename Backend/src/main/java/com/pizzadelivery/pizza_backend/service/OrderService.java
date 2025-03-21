@@ -164,10 +164,11 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
-    public Order getOrderById(String id) {
-        return orderRepository.findById(id).orElse(null);
+    public Order getOrderByUserName(String userName) {
+        return orderRepository.findByUserName(userName).orElse(null);
     }
 
+<<<<<<< Updated upstream
 //    public Order getOrderByUserName(String userName) { return orderRepository.findByUserName(userName).orElse(null); }
 
     public Order getOrderByUserName(String userName) {
@@ -180,6 +181,14 @@ public class OrderService {
         });
     }
 
+=======
+
+    public Order getOrderById(String Id) {  // Changed "UserName" to "userName" for consistency
+        return orderRepository.findById(Id).orElse(null);
+    }
+
+
+>>>>>>> Stashed changes
     public void updatePaymentStatus(String id, Order.PaymentStatus newStatus) {
         Optional<Order> orderOpt = orderRepository.findById(id);
         if (orderOpt.isPresent()) {

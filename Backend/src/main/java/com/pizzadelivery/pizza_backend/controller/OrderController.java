@@ -17,6 +17,8 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/order")
+@CrossOrigin(origins = "*")
+
 public class OrderController {
 
     @Autowired
@@ -40,22 +42,41 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
+<<<<<<< Updated upstream
 //    @GetMapping("/{id}")
 //    public ResponseEntity<Order> getOrderById(@PathVariable String id) {
 //        Order order = orderService.getOrderById(id);
 //        return (order != null) ? ResponseEntity.ok(order) : ResponseEntity.notFound().build();
+=======
+//    @GetMapping("/getorder/{userName}")
+//    public ResponseEntity<Order> getOrderByUserName(@PathVariable String userName) {
+//        Order order = orderService.getOrderByUserName(userName);
+//
+//        if (order == null || order.isEmpty()) {
+//            // If the cart has no items, return a custom message
+//            return ResponseEntity.status(404).body("No cart found for username: " + userName);
+//        }
+//        return ResponseEntity.ok(order);
+>>>>>>> Stashed changes
 //    }
 
     @GetMapping("/getorder/{userName}")
     public ResponseEntity<Order> getOrderByUserName(@PathVariable String userName) {
         Order order = orderService.getOrderByUserName(userName);
+<<<<<<< Updated upstream
         if (order.getItems() == null || order.getItems().isEmpty()) {
             // If the cart has no items, return a custom message
             return ResponseEntity.status(404).body("No order found for username: " + userName);
+=======
+
+        if (order == null) {
+            return ResponseEntity.notFound().build(); // Proper 404 response
+>>>>>>> Stashed changes
         }
         return ResponseEntity.ok(order);
     }
 
+<<<<<<< Updated upstream
 
 
 //    @PutMapping("/{id}/status")
@@ -64,6 +85,15 @@ public class OrderController {
 //        return updated ? ResponseEntity.ok(orderService.getOrderById(id)) : ResponseEntity.notFound().build();
 //    }
 
+=======
+//
+//    @PutMapping("/{id}/status")
+//    public ResponseEntity<Order> updateOrderStatus(@PathVariable String id, @RequestParam OrderStatus status) {
+//        boolean updated = orderService.updateOrderStatus(id, status);
+//        return updated ? ResponseEntity.ok(orderService.getOrderById(id)) : ResponseEntity.notFound().build();
+//    }
+
+>>>>>>> Stashed changes
 //    @DeleteMapping("/{id}")
 //    public ResponseEntity<String> deleteOrder(@PathVariable String id) {
 //        boolean deleted = orderService.deleteOrder(id);
