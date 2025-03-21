@@ -47,6 +47,7 @@ const App = () => {
           <Route path="/order" element={<PlaceOrder />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/verify" element={<Verify />} />
+          <Route path="/userorder" element={<UserOrder />} />
         </Routes>
       </div>
       <ToastContainer

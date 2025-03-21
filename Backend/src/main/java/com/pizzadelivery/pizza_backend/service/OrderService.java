@@ -1,5 +1,6 @@
 package com.pizzadelivery.pizza_backend.service;
 
+import com.pizzadelivery.pizza_backend.model.Cart;
 import com.pizzadelivery.pizza_backend.model.Item;
 import com.pizzadelivery.pizza_backend.model.Order;
 import com.pizzadelivery.pizza_backend.model.Order.OrderStatus;
@@ -165,6 +166,18 @@ public class OrderService {
 
     public Order getOrderById(String id) {
         return orderRepository.findById(id).orElse(null);
+    }
+
+//    public Order getOrderByUserName(String userName) { return orderRepository.findByUserName(userName).orElse(null); }
+
+    public Order getOrderByUserName(String userName) {
+        // Fetch the order for the given user or create a new one if not found
+        return orderRepository.findByUserName(userName).orElseGet(() -> {
+            Order newOrder = new Order();
+            newOrder.setUserName(userName);
+            newOrder.setItems(new ArrayList<>()); // Initialize an empty list for items
+            return newOrder;
+        });
     }
 
     public void updatePaymentStatus(String id, Order.PaymentStatus newStatus) {

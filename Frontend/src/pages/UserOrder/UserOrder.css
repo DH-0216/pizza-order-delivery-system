@@ -1,4 +1,4 @@
-.user-order{
+/* .user-order{
     margin: 150px 100px 0px 100px;
 }
 
@@ -22,14 +22,17 @@
 
 .user-order-order img{
     width: 50px;
+    height: auto;
+    margin-right: 15px;
 }
 
 .user-order-order p b{
     font-weight: 500;
     color: #454545;
+
 }
 
-user-order-order button{
+.user-order-order button{
     border: none;
     padding: 12px 0px;
     border-radius: 4px;
@@ -43,8 +46,125 @@ user-order-order button{
         grid-template-columns: 1fr 2fr 1fr;
         row-gap: 5px;
         font-size: 12px;
+
     }
     .user-order-order button{
         font-size: 10px;
+    }
+}
+
+
+.user-order-container {
+    padding-top: 140px; 
+}  
+
+
+
+.parcel-icon {
+    width: 50px; 
+    height: auto;
+    margin-right: 15px;
+}
+
+.user-order-order {
+    display: flex;
+    align-items: center;
+    gap: 15px; 
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px; 
+    margin-bottom: 10px;
+}
+
+.order-details {
+    flex-grow: 1;
+}
+
+
+
+ 
+
+
+ */
+
+
+
+ .user-order {
+    margin: 100px auto;
+    max-width: 800px;
+}
+
+.user-order h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.user-order-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.user-order-card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    gap: 20px;
+}
+
+.parcel-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: #ffcc80;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.parcel-icon {
+    width: 40px;
+    height: auto;
+}
+
+.order-details {
+    flex-grow: 1;
+}
+
+.order-details p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.track-order-btn {
+    background: #ff5722;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.track-order-btn:hover {
+    background: #e64a19;
+}
+
+@media (max-width: 768px) {
+    .user-order-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .parcel-icon-container {
+        width: 100%;
+        justify-content: flex-start;
     }
 }

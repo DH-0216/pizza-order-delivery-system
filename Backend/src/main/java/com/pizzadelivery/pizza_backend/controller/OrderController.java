@@ -40,23 +40,35 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable String id) {
-        Order order = orderService.getOrderById(id);
-        return (order != null) ? ResponseEntity.ok(order) : ResponseEntity.notFound().build();
+//    @GetMapping("/{id}")
+//    public ResponseEntity<Order> getOrderById(@PathVariable String id) {
+//        Order order = orderService.getOrderById(id);
+//        return (order != null) ? ResponseEntity.ok(order) : ResponseEntity.notFound().build();
+//    }
+
+    @GetMapping("/getorder/{userName}")
+    public ResponseEntity<Order> getOrderByUserName(@PathVariable String userName) {
+        Order order = orderService.getOrderByUserName(userName);
+        if (order.getItems() == null || order.getItems().isEmpty()) {
+            // If the cart has no items, return a custom message
+            return ResponseEntity.status(404).body("No order found for username: " + userName);
+        }
+        return ResponseEntity.ok(order);
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<Order> updateOrderStatus(@PathVariable String id, @RequestParam OrderStatus status) {
-        boolean updated = orderService.updateOrderStatus(id, status);
-        return updated ? ResponseEntity.ok(orderService.getOrderById(id)) : ResponseEntity.notFound().build();
-    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteOrder(@PathVariable String id) {
-        boolean deleted = orderService.deleteOrder(id);
-        return deleted ? ResponseEntity.ok("Order deleted successfully!") : ResponseEntity.notFound().build();
-    }
+
+//    @PutMapping("/{id}/status")
+//    public ResponseEntity<Order> updateOrderStatus(@PathVariable String id, @RequestParam OrderStatus status) {
+//        boolean updated = orderService.updateOrderStatus(id, status);
+//        return updated ? ResponseEntity.ok(orderService.getOrderById(id)) : ResponseEntity.notFound().build();
+//    }
+
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<String> deleteOrder(@PathVariable String id) {
+//        boolean deleted = orderService.deleteOrder(id);
+//        return deleted ? ResponseEntity.ok("Order deleted successfully!") : ResponseEntity.notFound().build();
+//    }
 
     @PostMapping("/verify")
     public ResponseEntity<?> verifyPayment(@RequestBody Map<String, String> request) {
