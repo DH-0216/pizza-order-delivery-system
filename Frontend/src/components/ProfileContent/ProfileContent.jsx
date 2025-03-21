@@ -84,7 +84,7 @@ const ProfileContent = () => {
             <p>State: {user.state}</p>
             <p>Zip Code: {user.zipCode}</p>
             <p>Country: {user.country}</p>
-            <p>Phone Number: {user.phone}</p>
+            <p>Phone Number: {user.contactNumber}</p>
           </div>
 
           <div className="myAccount-button">

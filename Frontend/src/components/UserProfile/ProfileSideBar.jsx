@@ -10,7 +10,7 @@ const ProfileSideBar = ({ setActiveSection, activeSection }) => {
 
   useEffect(() => {
     if (userName) {
-      fetch(`http://localhost:8080/api/users/getuserbyname/${userName}`) // 🔹 Fetch user profile using userName
+      fetch(`http://localhost:8080/api/users/getuser/${userName}`) // 🔹 Fetch user profile using userName
         .then((response) => response.json())
         .then((data) => {
           setProfile(data);
